@@ -1,1 +1,28 @@
-# AutonomousVehicleWP
+# Reasoning About Autonomous Vehicle Accountability
+
+## Introduction
+
+With novel public proliferation of autonomous/semi-autonomous vehicles, a need has arisen for methods that rigorously investigate and formally reason about the intentions of such systems. This proves especially important when attempting to assess culpability, responsibility and accountability within existing frameworks of governance. In particular, understanding intention can allow us to hierarchically classify actions by degree of responsibility, supposing a harmful or unexpected outcome has occurred (i.e. a crash).  Recently, tools have been developed which provide symbolic execution of different scenarios provided with an autonomous vehicle's program and a factual trace/log of the buildup to the crash. With such machinery, lawyers are able to accurately model different scenarios played out by the autonomous vehicle, allowing them to effectively assess intention and accountability. However, such tools evidently require a human-in-the-loop to determine the "inflection point", or the point at which the vehicle "made the decision" to engage in the crash, as well as the degree of responsibility that should be ascribed. While the latter is implicitly requires some degree of human intervention, formal methods may be applicable to automate the former to some degree. 
+
+Currently, in order to establish accountability, we conduct counterfactual analysis of the provided trace, from which we can then deduce logical conclusions. As per the presented example in Professor Piskac's talk, consider a motivating example where two autonomous vehicle have collided at an intersection - if the ego car's actions in the crash would have differed were it to not notice that the other car had signaled a turn, then we would be able to make a judgment call on the ego car's intentions. As it stands, determining the variables/parameters which affect the outcome (crash) requires explicit human intervention - this is where some notion of a "relaxed weakest precondition" may come in.
+
+## (Relaxed) Weakest Precondition
+
+The Weakest Precondition is a fundamental tenant within formal methods. We can define it as follows:
+
+> Given a program $S$ and a post-condition $P$, the Weakest Precondition $wp(S, P)$ is a predicate that describes all valid inputs for which command $S$ will complete with an output that satisfies $P$.
+
+Contextualizing this definition to autonomous vehicles, our post-condition would state that the ego car has indeed crashed into the other car - this could be encompassed by a proposition stating that the coordinates of both cars are equivalent at a certain discretized point in time (up to some error margin accounting for the size of the cars). 
+
+However, setting up the problem in this way, we find that the weakest precondition is a predicate that describes all inputs of our autonomous vehicle's program such that a crash will occur. In other words, the weakest pre would be a logical predicate of inputs to the car's program whereby a crash would be inevitable. This is inherently limiting, as the inevitability of the crash provides us with no information on intention. Indeed, we are rather looking to find a predicate of program inputs such that a crash *could* occur, hence making a case for our autonomous vehicle's intentions. One way of doing this could be by defining a **Relaxed Weakest Precondition**:
+
+> Given a program $S$ and a post-condition $P$, the Relaxed Weakest Precondition $rwp(S, P)$ is a predicate that describes *at least one* valid input for which command $S$ will complete with an output that satisfies $P$.
+
+Here, we have framed our precondition in terms of an existential as opposed to a universal quantifier. Effectively, the relaxed weakest precondition is asking whether there exists a state for which command $S$ will complete in a state for which $P$ (crash) is true.
+
+It is important to acknowledge that the relaxed weakest precondition does not necessarily imply intention. Rather, by noting a gulf in the weakest precondition and the relaxed weakest precondition, we find a point where our car has potentially made an "intentional" decision - this would be a point where the autonomous vehicle, having an option to engage in a crash but also an option not to, does so. Noting a presented difference between the preconditions, we would still likely need human assessment of intention - this would rather aid constrain the problem to avoid consideration and trail of unnecessary scenarios.
+
+In the postulation above, we aim to assess "a point" of difference between the preconditions - determining such a point is not trivial. Effectively, this highlights the same problem as defining our program $P$ with consideration for the temporally evolving nature of the situation (crash). We want to iteratively roll back time in some discretized way, at each unit evaluating the different preconditions until a difference is observed. One way of defining this "unit" could be to suppose the program $P$ simply be the cars initial program, with each iteration rolling back on one executable line of code. The issue with this however is that we lose the granularity that comes with the factual trace, and in turn will often not be able to catch a unique relaxed weakest precondition. A more encompassing approach could involve a combined unraveling of the car's program and the trace (or if the trace also contains timestamps of the executions of the program, then just an unraveling of the trace - example trace needed to confirm this and provide a substantial example).
+
+
+
